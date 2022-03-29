@@ -1,0 +1,33 @@
+{
+    "name": "zip-node-addon",
+    "version": "0.0.1",
+    "description": "Node native addon which wrap the \"kupa--/zip\"",
+    "main": "index.js",
+    "scripts": {
+        "test": "node ./test/index.js",
+        "build": "node-gyp rebuild"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ape-casear/zip-node-addon.git"
+    },
+    "keywords": [
+        "zip",
+        "node",
+        "node-native",
+        "addon",
+        "napi",
+        "node-addon-api"
+    ],
+    "author": "122884944@qq.com",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/ape-casear/zip-node-addon/issues"
+    },
+    "homepage": "https://github.com/ape-casear/zip-node-addon#readme",
+    "dependencies": {
+        "bindings": "^1.5.0",
+        "napi_thread_safe_promise": "^1.2.6",
+        "node-addon-api": "^4.3.0"
+    }
+}
