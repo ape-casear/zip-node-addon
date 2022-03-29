@@ -4,8 +4,8 @@ const path =require('path')
 
 console.log(zipAddon.hello());
 
-
 async function run () {
+    console.time('unzipStream')
     const buf = fs.readFileSync(path.join(__dirname, './zip.test.zip'))
     const uint8Array = new Uint8Array(buf.buffer, buf.byteOffset, buf.length / Uint8Array.BYTES_PER_ELEMENT)
     await zipAddon.unzipStream(uint8Array, "./temp").then(jsonStr => {
@@ -13,12 +13,14 @@ async function run () {
         let jsObj = JSON.parse(jsonStr)
         console.log(jsObj)
     }).catch(err => console.error(err))
+    console.timeEnd('unzipStream')
     
-    
+    console.time('unzipFile')
     await zipAddon.unzipFile(path.join(__dirname, 'zip.test.zip'), "./temp/unzipFile").then(jsonStr => {
         console.log(jsonStr)
         let jsObj = JSON.parse(jsonStr)
         console.log(jsObj)
     }).catch(err => console.error(err))
+    console.time('unzipFile')
 }
 run ()
