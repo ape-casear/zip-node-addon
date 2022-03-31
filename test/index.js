@@ -1,10 +1,10 @@
 var zipAddon = require('bindings')('zipAddon');
 const fs = require('fs')
-const path =require('path')
+const path = require('path')
 
 console.log(zipAddon.hello());
 
-async function run () {
+async function run() {
     console.time('unzipStream')
     const buf = fs.readFileSync(path.join(__dirname, './zip.test.zip'))
     await zipAddon.unzipStream(buf, "./temp").then(jsonStr => {
@@ -12,7 +12,7 @@ async function run () {
         console.log(jsObj)
     }).catch(err => console.error(err))
     console.timeEnd('unzipStream')
-    
+
     console.time('unzipFile')
     await zipAddon.unzipFile(path.join(__dirname, 'zip.test.zip'), "./temp/unzipFile").then(jsonStr => {
         let jsObj = JSON.parse(jsonStr)
@@ -45,4 +45,4 @@ async function run () {
     }).catch(err => console.error(err))
     console.timeEnd('zipBuffer')
 }
-run ()
+run()
