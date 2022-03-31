@@ -35,10 +35,10 @@ Napi::Promise unzipStream(const CallbackInfo &info)
                                   const char *buf = reinterpret_cast<char *>(data.Data());
 
                                   // 因为node那边的buffer会持有buf这个块内存，所以这里传递指针给子线程不怕未定义行为（我不能确定）
-                                  auto fun = [resolve, reject](const char *buf, size_t len, std::string dest)
+                                  std::function<void(const char *, size_t, std::string)> fun = [resolve, reject](const char *buf, size_t len, std::string dest)
                                   {
                                       int arg = 2;
-                                      auto fun1 = [](const char *filename, void *arg)
+                                      ZipAddon::on_extract fun1 = [](const char *filename, void *arg)
                                       { return 0; };
 
                                       int code = zip_stream_extract(buf, len, dest.c_str(), fun1, &arg);
@@ -79,12 +79,12 @@ Napi::Promise unzipFile(const CallbackInfo &info)
                                   std::string file = info[0].As<String>();
                                   std::string dest = info[1].As<String>();
 
-                                  auto fun = [resolve, reject](const std::string file, const std::string dest)
+                                  std::function<void(const std::string, const std::string)> fun = [resolve, reject](const std::string file, const std::string dest)
                                   {
                                       int arg = 2;
-                                      auto fun1 = [](const char *filename, void *arg)
+                                      ZipAddon::on_extract fun1 = [](const char *filename, void *arg)
                                       { return 0; };
-                                      auto code = zip_extract(file.c_str(), dest.c_str(), fun1, &arg);
+                                      int code = zip_extract(file.c_str(), dest.c_str(), fun1, &arg);
                                       if (code != 0)
                                       {
                                           reject("Error: unzip fail,code:" + std::to_string(code));
@@ -124,7 +124,7 @@ Napi::Promise listAllEntriesFromBuffer(const CallbackInfo &info)
                                   size_t len = data.ElementLength();
                                   const char *buf = reinterpret_cast<char *>(data.Data());
 
-                                  auto fun = [resolve, reject](const char *buf, size_t len)
+                                  std::function<void(const char *, size_t)> fun = [resolve, reject](const char *buf, size_t len)
                                   {
                                       zip_t *zip = zip_stream_open(buf, len, 0, 'r');
                                       if (!zip)
@@ -167,7 +167,7 @@ Napi::Promise listAllEntriesFromFile(const CallbackInfo &info)
                                   }
                                   std::string file = info[0].As<String>();
 
-                                  auto fun = [resolve, reject](const std::string file)
+                                  std::function<void(const std::string)> fun = [resolve, reject](const std::string file)
                                   {
                                       zip_t *zip = zip_open(file.c_str(), 0, 'r');
                                       if (!zip)
@@ -217,7 +217,7 @@ Napi::Promise zipBuffer(const CallbackInfo &info)
                                       if (ele.IsString())
                                       {
                                           std::string key = ele.As<Napi::String>();
-                                          auto valueEle = zipObj.Get(key);
+                                          Napi::Value valueEle = zipObj.Get(key);
                                           if (!valueEle.IsTypedArray())
                                           {
                                               reject("param " + key + " is not buffer");
@@ -226,7 +226,7 @@ Napi::Promise zipBuffer(const CallbackInfo &info)
                                       }
                                   }
 
-                                  auto fun = [resolve, reject](const std::string file)
+                                  std::function<void(const std::string)> fun = [resolve, reject](const std::string file)
                                   {
                                       resolve("ok");
                                   };
@@ -296,7 +296,7 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
         });
 
     // 子线程里面不能使用 Napi相关对象 https://github.com/nodejs/node-addon-api/blob/main/doc/threadsafe.md
-    auto fun = [context]()
+    std::function<void()> fun = [context]()
     {
         // const char* key = context -> inputData.begin() -> name.c_str();
         // printf("keys[0]: %s,  content:%s\n", key, context -> inputData.begin() -> content);
@@ -305,7 +305,7 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
         struct zip_t *zip = zip_stream_open(NULL, 0, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
         char *outbuf = NULL;
         size_t outbufsize = 0;
-        for (auto ele : context->inputData)
+        for (ZipAddon::input_data ele : context->inputData)
         {
             // printf("process file:%s, size:%zu \n", ele.name.c_str(), ele.size);
             {
