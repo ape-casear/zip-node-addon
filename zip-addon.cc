@@ -45,6 +45,7 @@ Napi::Promise unzipStream(const CallbackInfo &info)
             }
             zip_t* zip = zip_stream_open(buf, len, 0, 'r');
             std::string str = getAllEntries(zip);
+            zip_stream_close(zip);
             resolve(str);
         };
         std::thread task1(fun, buf, len, dest);
@@ -83,6 +84,7 @@ Napi::Promise unzipFile(const CallbackInfo &info)
                 }
                 zip_t* zip = zip_open(file.c_str(), 0, 'r');
                 std::string str = getAllEntries(zip);
+                zip_close(zip);
                 resolve(str);
             };
             std::thread task1(fun, file, dest);
@@ -119,6 +121,7 @@ Napi::Promise listAllEntriesFromBuffer(const CallbackInfo &info)
                 return;
             }
             std::string str = getAllEntries(zip);
+            zip_stream_close(zip);
             if (str.compare("") == 0) {
                 reject("get entry fail:check input");
                 return;
@@ -156,6 +159,7 @@ Napi::Promise listAllEntriesFromFile(const CallbackInfo &info)
                 return;
             }
             std::string str = getAllEntries(zip);
+            zip_close(zip);
             if (str.compare("") == 0) {
                 reject("get entry fail:check input");
                 return;
