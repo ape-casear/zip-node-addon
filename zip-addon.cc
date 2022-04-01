@@ -258,7 +258,6 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
     Napi::Object zipObj = info[0].As<Object>();
     Napi::Array keys = zipObj.GetPropertyNames();
 
-    size_t totalContent = 0;
     for (uint32_t i = 0; i < keys.Length(); i++)
     {
         Napi::Value ele = keys[i];
@@ -273,11 +272,9 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
             }
             Buffer<uint8_t> content = valueEle.As<Buffer<uint8_t> >();
             size_t contextSize = content.ElementLength();
-            totalContent += contextSize;
             context->inputData.push_back({key, reinterpret_cast<const char *>(content.Data()), contextSize});
         }
     }
-    context->data.size = totalContent;
     context->tsfn = ThreadSafeFunction::New(
         env,
         Napi::Function::New(env, [](const Napi::CallbackInfo &info) {}),
@@ -294,6 +291,7 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
             {
                 context->deffered.Reject(Napi::Error::New(env, context->data.data).Value());
             }
+            delete[] context->data.data;
         });
 
     // 子线程里面不能使用 Napi相关对象 https://github.com/nodejs/node-addon-api/blob/main/doc/threadsafe.md
@@ -302,7 +300,6 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
         // const char* key = context -> inputData.begin() -> name.c_str();
         // printf("keys[0]: %s,  content:%s\n", key, context -> inputData.begin() -> content);
 
-        context->data.data = new char[context->data.size];
         struct zip_t *zip = zip_stream_open(NULL, 0, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
         char *outbuf = NULL;
         size_t outbufsize = 0;
@@ -320,6 +317,9 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
         /* copy compressed stream into outbuf */
         zip_stream_copy(zip, (void **)&outbuf, &outbufsize);
         zip_stream_close(zip);
+        context->data.size = outbufsize;
+        context->data.data = new char[outbufsize];
+
         memcpy(context->data.data, outbuf, outbufsize);
         free(outbuf);
 
