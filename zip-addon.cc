@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include <memory.h>
+#include <algorithm>
 #include "promiseWrapper.h"
 #include "zip.h"
 #include "zip-addon.h"
@@ -366,6 +367,8 @@ std::string ZipAddon::getAllEntries(zip_t *zip)
         zip_entry_close(zip);
     }
     str.append("]");
+    // 去除换行符
+    std::replace(str.begin(), str.end(), '\n', ' ');
     return str;
 }
 
