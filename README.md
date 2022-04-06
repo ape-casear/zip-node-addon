@@ -61,22 +61,25 @@ await zipAddon.listAllEntriesFromBuffer(buf).then(jsonStr => {
 ```
 
 # benchmark
-其中JavaScript使用的是[JsZip](https://github.com/Stuk/jszip), node-addon使用的是封装的zip，c++是使用的[kuba--/zip](https://github.com/kuba--/zip)，流程就是解压已经读取到内存的压缩数据到指定位置（zip文件大小3.34MB,解压后26.1MB）
+其中JavaScript使用的是[JsZip](https://github.com/Stuk/jszip), node-addon使用的是封装的zip，c++是使用的[kuba--/zip](https://github.com/kuba--/zip), 流程就是解压已经读取到内存的压缩数据到指定位置（zip文件大小3.34MB,解压后26.1MB)
+
 Unzip from memory to files.
 
 下方表格是在windows10，Node版本 v12.22.1, CPU-i5-8400下测试的
-
-            cost
-Javascript  259.938ms
-node-addon  125.162ms
-c/c++       132 ms
+|   impl  | cost  |
+|  ----  | ----  |
+| Javascript  | 259.938ms |
+| node-addon  | 125.162ms |
+| c/c++  | 132 ms |
 
 
 下方表格是在mac，Node版本 v12.10.0, CPU-i5下测试的
+|   impl  | cost  |
+|  ----  | ----  |
+| Javascript  | 266.769ms |
+| node-addon  | 124.211ms |
+| c/c++  | 122 ms |
 
-Javascript  266.769ms
-node-addon  124.211ms
-c/c++       122 ms
 # Test
 `npm run test`
 
