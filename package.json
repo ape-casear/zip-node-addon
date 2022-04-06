@@ -25,6 +25,7 @@
         "url": "https://github.com/ape-casear/zip-node-addon/issues"
     },
     "homepage": "https://github.com/ape-casear/zip-node-addon#readme",
+    "types": "./index.d.ts",
     "dependencies": {
         "bindings": "^1.5.0",
         "napi_thread_safe_promise": "^1.2.6",
