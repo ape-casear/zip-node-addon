@@ -285,7 +285,14 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
             if (context->resolve)
             {
                 context->deffered.Resolve(
-                    Napi::ArrayBuffer::New(env, context->data.data, context->data.size));
+                    Napi::Buffer<char>::New(
+                        env,
+                        context->data.data,
+                        context->data.size,
+                        [](Napi::Env env, void *data)
+                        {
+                            free(data);
+                        }));
             }
             else
             {

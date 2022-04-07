@@ -20,7 +20,7 @@ declare namespace ZipNodeAddon {
      * zip files
      * @param param0 
      */
-    function zipBuffer({ [key]: Buffer }): Promise<Uint8Array>;
+    function zipBuffer({ [key]: Buffer }): Promise<Buffer>;
 }
 
 declare var ZipNodeAddon: ZipNodeAddon;

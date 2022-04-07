@@ -37,8 +37,7 @@ await zipAddon.zipBuffer({
     file1: Buffer.from("I am plain text"),
     file2: Buffer.from(fs.readFileSync(path.join(__dirname, '../README.md'))),
     'dir/file3': Buffer.from("file in dir"),
-}).then(ab => {
-    const buf = Buffer.from(ab)
+}).then(buf => {
     fs.writeFileSync(path.join(__dirname, '../temp/test.zip'), buf)
 }).catch(err => console.error(err))
 ```

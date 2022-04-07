@@ -1,6 +1,6 @@
 {
     "name": "zip-node-addon",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "description": "Node native addon which wrap the \"kupa--/zip\"",
     "main": "index.js",
     "scripts": {
