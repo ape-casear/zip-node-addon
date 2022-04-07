@@ -291,7 +291,6 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
             {
                 context->deffered.Reject(Napi::Error::New(env, context->data.data).Value());
             }
-            delete[] context->data.data;
         });
 
     // 子线程里面不能使用 Napi相关对象 https://github.com/nodejs/node-addon-api/blob/main/doc/threadsafe.md
@@ -301,8 +300,6 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
         // printf("keys[0]: %s,  content:%s\n", key, context -> inputData.begin() -> content);
 
         struct zip_t *zip = zip_stream_open(NULL, 0, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
-        char *outbuf = NULL;
-        size_t outbufsize = 0;
         for (ZipAddon::input_data ele : context->inputData)
         {
             // printf("process file:%s, size:%zu \n", ele.name.c_str(), ele.size);
@@ -315,13 +312,8 @@ Napi::Promise zipBuffer2(const CallbackInfo &info)
             }
         }
         /* copy compressed stream into outbuf */
-        zip_stream_copy(zip, (void **)&outbuf, &outbufsize);
+        zip_stream_copy(zip, (void **)&context->data.data, &context->data.size);
         zip_stream_close(zip);
-        context->data.size = outbufsize;
-        context->data.data = new char[outbufsize];
-
-        memcpy(context->data.data, outbuf, outbufsize);
-        free(outbuf);
 
         if (!context->data.data)
         {
